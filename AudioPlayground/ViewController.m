@@ -30,9 +30,39 @@
   [self.view addSubview: [[AVRoutePickerView alloc] initWithFrame:CGRectMake(100, 40, 40, 40)]];
   
   AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-  [audioSession setPreferredInput:audioSession.availableInputs[0] error:nil];
-
-  [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionMixWithOthers error:nil];
+    
+  NSError *inputError;
+  [audioSession setPreferredInput:audioSession.availableInputs[0] error:&inputError];
+  if (inputError) {
+    NSLog(@"Error setting preferred input: %@", inputError.localizedDescription);
+  }
+    
+  NSError* categoryError;
+  if (![audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionMixWithOthers |  AVAudioSessionCategoryOptionAllowBluetooth | AVAudioSessionCategoryOptionDefaultToSpeaker error:&categoryError]) {
+  NSLog(@"Error setting category: %@", categoryError.localizedDescription);
+  }
+ 
+  // category must already be set to AVAudioSessionCategoryPlayAndRecord
+  NSError *modeError;
+  NSString *mode = AVAudioSessionModeVoiceChat;
+  if (![audioSession setMode:mode error:&modeError]) {
+    NSLog(@"Error setting mode: %@", modeError.localizedDescription);
+  }
+    
+  NSError* categoryError2;
+  if (![audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionMixWithOthers |  AVAudioSessionCategoryOptionAllowBluetooth | AVAudioSessionCategoryOptionDefaultToSpeaker error:&categoryError2]) {
+    NSLog(@"Error setting category second time: %@", categoryError2.localizedDescription);
+  }
+    
+  NSError* activationError;
+  AVAudioSessionSetActiveOptions options = 0;
+  if (![audioSession setActive:YES withOptions:options error:&activationError]) {
+    NSLog(@"Error activating session: %@", activationError.localizedDescription);
+  }
+    
+  NSLog(@"           mode: %@", audioSession.mode);
+  NSLog(@"       category: %@", audioSession.category);
+  NSLog(@"categoryOptions: %ld", audioSession.categoryOptions);
 }
 
 - (IBAction)play:(id)sender {
