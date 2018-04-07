@@ -30,6 +30,11 @@
   [self.view addSubview: [[AVRoutePickerView alloc] initWithFrame:CGRectMake(100, 40, 40, 40)]];
   
   AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+  
+  [audioSession addObserver:self
+             forKeyPath:@"outputVolume"
+                options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
+                context:nil];
     
   NSError *inputError;
   [audioSession setPreferredInput:audioSession.availableInputs[0] error:&inputError];
@@ -63,6 +68,15 @@
   NSLog(@"           mode: %@", audioSession.mode);
   NSLog(@"       category: %@", audioSession.category);
   NSLog(@"categoryOptions: %ld", audioSession.categoryOptions);
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context {
+  NSNumber *newVolume = change[NSKeyValueChangeNewKey];
+  NSNumber *oldVolume = change[NSKeyValueChangeOldKey];
+  NSLog(@"OutputVolumeDidChange from %f to %f", oldVolume.floatValue, newVolume.floatValue);
 }
 
 - (IBAction)play:(id)sender {
