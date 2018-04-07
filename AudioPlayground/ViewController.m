@@ -53,12 +53,12 @@
   if (![audioSession setMode:mode error:&modeError]) {
     NSLog(@"Error setting mode: %@", modeError.localizedDescription);
   }
-    
-  NSError* categoryError2;
-  if (![audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionMixWithOthers |  AVAudioSessionCategoryOptionAllowBluetooth | AVAudioSessionCategoryOptionDefaultToSpeaker error:&categoryError2]) {
-    NSLog(@"Error setting category second time: %@", categoryError2.localizedDescription);
-  }
-    
+  
+//  NSError* categoryError2;
+//  if (![audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionMixWithOthers |  AVAudioSessionCategoryOptionAllowBluetooth | AVAudioSessionCategoryOptionDefaultToSpeaker error:&categoryError2]) {
+//    NSLog(@"Error setting category second time: %@", categoryError2.localizedDescription);
+//  }
+  
   NSError* activationError;
   AVAudioSessionSetActiveOptions options = 0;
   if (![audioSession setActive:YES withOptions:options error:&activationError]) {
