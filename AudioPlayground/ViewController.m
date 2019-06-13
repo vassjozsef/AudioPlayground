@@ -7,7 +7,6 @@
 //
 
 #import "ViewController.h"
-#import <AVKit/AVKit.h>
 
 @interface ViewController ()
 
@@ -27,12 +26,7 @@
   [super viewDidLoad];
   // Do any additional setup after loading the view, typically from a nib.
   
-  AVRoutePickerView* avRoutePickerView = [[AVRoutePickerView alloc] initWithFrame:CGRectMake(100, 40, 40, 40)];
-  avRoutePickerView.backgroundColor = UIColor.clearColor;
-  avRoutePickerView.tintColor = UIColor.blackColor;
-  avRoutePickerView.activeTintColor = UIColor.redColor;
-  avRoutePickerView.delegate = self;
-  [self.view addSubview:avRoutePickerView];
+  [self addAVRoutePicker];
     
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleRouteChanged:) name:AVAudioSessionRouteChangeNotification object:nil];
   
@@ -81,8 +75,29 @@
   NSLog(@"routePickerViewWillBeginPresentingRoutes");
 }
 
+- (void)isAirPlayActive
+{
+  for (UIView* view in self.view.subviews) {
+    if ([view isKindOfClass:[AVRoutePickerView class]]) {
+      AVRoutePickerView* avRoutePicker = (AVRoutePickerView*)view;
+      NSLog(@"Air play active: %d", [[avRoutePicker valueForKey:@"_airPlayActive"] boolValue]);
+    }
+  }
+}
+
 - (void)routePickerViewDidEndPresentingRoutes:(AVRoutePickerView *)routePickerView {
   NSLog(@"routePickerViewDidEndPresentingRoutes");
+  [routePickerView removeFromSuperview];
+  [self addAVRoutePicker];
+}
+
+- (void)addAVRoutePicker {
+  AVRoutePickerView* avRoutePickerView = [[AVRoutePickerView alloc] initWithFrame:CGRectMake(100, 40, 40, 40)];
+  avRoutePickerView.backgroundColor = UIColor.clearColor;
+  avRoutePickerView.tintColor = UIColor.blackColor;
+  avRoutePickerView.activeTintColor = UIColor.redColor;
+  avRoutePickerView.delegate = self;
+  [self.view addSubview:avRoutePickerView];
 }
 
 - (void)handleRouteChanged:(NSNotification*)notification
@@ -92,7 +107,9 @@
   NSLog(@"Route changed reason: %d", (int)[[userInfo valueForKey:AVAudioSessionRouteChangeReasonKey] integerValue]);
   AVAudioSessionRouteDescription* routeDescription = audioSession.currentRoute;
   AVAudioSessionPortDescription* description = routeDescription.outputs[0];
-  NSLog(@"New route name: %@", description.portName);
+  NSLog(@"New route name: %@, type: %@", description.portName, description.portType);
+    
+  dispatch_sync(dispatch_get_main_queue(), ^{ [self isAirPlayActive]; });
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
@@ -129,8 +146,6 @@
   [super didReceiveMemoryWarning];
   // Dispose of any resources that can be recreated.
 }
-
-
 
 #pragma mark - Audio Recording
 - (IBAction)startRecording:(id)sender
