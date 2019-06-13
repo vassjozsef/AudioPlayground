@@ -20,6 +20,10 @@
 
 @end
 
+@interface AVRoutePickerView ()
+-(void) _updateAirPlayActive;
+@end
+
 @implementation ViewController
 
 - (void)viewDidLoad {
@@ -87,8 +91,12 @@
 
 - (void)routePickerViewDidEndPresentingRoutes:(AVRoutePickerView *)routePickerView {
   NSLog(@"routePickerViewDidEndPresentingRoutes");
-  [routePickerView removeFromSuperview];
-  [self addAVRoutePicker];
+  // private method to update state
+  [routePickerView _updateAirPlayActive];
+    
+  // recreating view also fixes the state
+//  [routePickerView removeFromSuperview];
+//  [self addAVRoutePicker];
 }
 
 - (void)addAVRoutePicker {
