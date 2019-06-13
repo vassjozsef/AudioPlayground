@@ -22,6 +22,7 @@
 
 @interface AVRoutePickerView ()
 -(void) _updateAirPlayActive;
+-(BOOL) _isAirPlayActive;
 @end
 
 @implementation ViewController
@@ -84,7 +85,8 @@
   for (UIView* view in self.view.subviews) {
     if ([view isKindOfClass:[AVRoutePickerView class]]) {
       AVRoutePickerView* avRoutePicker = (AVRoutePickerView*)view;
-      NSLog(@"Air play active: %d", [[avRoutePicker valueForKey:@"_airPlayActive"] boolValue]);
+        NSLog(@"Air play active: (KVC): %d", [[avRoutePicker valueForKey:@"_airPlayActive"] boolValue]);
+        NSLog(@"Air play active: (private method): %d", [avRoutePicker _isAirPlayActive]);
     }
   }
 }
