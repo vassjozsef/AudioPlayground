@@ -27,7 +27,14 @@
   [super viewDidLoad];
   // Do any additional setup after loading the view, typically from a nib.
   
-  [self.view addSubview: [[AVRoutePickerView alloc] initWithFrame:CGRectMake(100, 40, 40, 40)]];
+  AVRoutePickerView* avRoutePickerView = [[AVRoutePickerView alloc] initWithFrame:CGRectMake(100, 40, 40, 40)];
+  avRoutePickerView.backgroundColor = UIColor.clearColor;
+  avRoutePickerView.tintColor = UIColor.blackColor;
+  avRoutePickerView.activeTintColor = UIColor.redColor;
+  avRoutePickerView.delegate = self;
+  [self.view addSubview:avRoutePickerView];
+    
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleRouteChanged:) name:AVAudioSessionRouteChangeNotification object:nil];
   
   AVAudioSession *audioSession = [AVAudioSession sharedInstance];
   
@@ -68,6 +75,24 @@
   NSLog(@"           mode: %@", audioSession.mode);
   NSLog(@"       category: %@", audioSession.category);
   NSLog(@"categoryOptions: %ld", audioSession.categoryOptions);
+}
+
+- (void)routePickerViewWillBeginPresentingRoutes:(AVRoutePickerView *)routePickerView {
+  NSLog(@"routePickerViewWillBeginPresentingRoutes");
+}
+
+- (void)routePickerViewDidEndPresentingRoutes:(AVRoutePickerView *)routePickerView {
+  NSLog(@"routePickerViewDidEndPresentingRoutes");
+}
+
+- (void)handleRouteChanged:(NSNotification*)notification
+{
+  AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+  NSDictionary* userInfo = notification.userInfo;
+  NSLog(@"Route changed reason: %d", (int)[[userInfo valueForKey:AVAudioSessionRouteChangeReasonKey] integerValue]);
+  AVAudioSessionRouteDescription* routeDescription = audioSession.currentRoute;
+  AVAudioSessionPortDescription* description = routeDescription.outputs[0];
+  NSLog(@"New route name: %@", description.portName);
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
