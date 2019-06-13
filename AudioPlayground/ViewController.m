@@ -85,17 +85,24 @@
   for (UIView* view in self.view.subviews) {
     if ([view isKindOfClass:[AVRoutePickerView class]]) {
       AVRoutePickerView* avRoutePicker = (AVRoutePickerView*)view;
-        NSLog(@"Air play active: (KVC): %d", [[avRoutePicker valueForKey:@"_airPlayActive"] boolValue]);
-        NSLog(@"Air play active: (private method): %d", [avRoutePicker _isAirPlayActive]);
+      NSLog(@"Air play active: (KVC): %d", [[avRoutePicker valueForKey:@"_airPlayActive"] boolValue]);
+      NSLog(@"Air play active: (private method): %d", [avRoutePicker _isAirPlayActive]);
+    }
+  }
+}
+
+- (void)updateAirPlayActive
+{
+  for (UIView* view in self.view.subviews) {
+    if ([view isKindOfClass:[AVRoutePickerView class]]) {
+      AVRoutePickerView* avRoutePicker = (AVRoutePickerView*)view;
+      [avRoutePicker _updateAirPlayActive];
     }
   }
 }
 
 - (void)routePickerViewDidEndPresentingRoutes:(AVRoutePickerView *)routePickerView {
   NSLog(@"routePickerViewDidEndPresentingRoutes");
-  // private method to update state
-  [routePickerView _updateAirPlayActive];
-    
   // recreating view also fixes the state
 //  [routePickerView removeFromSuperview];
 //  [self addAVRoutePicker];
@@ -119,6 +126,7 @@
   AVAudioSessionPortDescription* description = routeDescription.outputs[0];
   NSLog(@"New route name: %@, type: %@", description.portName, description.portType);
     
+  dispatch_sync(dispatch_get_main_queue(), ^{ [self updateAirPlayActive]; });
   dispatch_sync(dispatch_get_main_queue(), ^{ [self isAirPlayActive]; });
 }
 
