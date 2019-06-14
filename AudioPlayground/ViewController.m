@@ -47,27 +47,20 @@
   if (inputError) {
     NSLog(@"Error setting preferred input: %@", inputError.localizedDescription);
   }
-    
+
+  // NSString *mode = AVAudioSessionModeVoiceChat;
+  NSString *mode = AVAudioSessionModeVideoChat;
+  NSUInteger options = AVAudioSessionCategoryOptionMixWithOthers
+    | AVAudioSessionCategoryOptionAllowBluetooth
+    | AVAudioSessionCategoryOptionDefaultToSpeaker;
   NSError* categoryError;
-  if (![audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionMixWithOthers |  AVAudioSessionCategoryOptionAllowBluetooth | AVAudioSessionCategoryOptionDefaultToSpeaker error:&categoryError]) {
+    if (![audioSession setCategory:AVAudioSessionCategoryPlayAndRecord mode:mode options:options error:&categoryError]) {
   NSLog(@"Error setting category: %@", categoryError.localizedDescription);
   }
- 
-  // category must already be set to AVAudioSessionCategoryPlayAndRecord
-  NSError *modeError;
-  NSString *mode = AVAudioSessionModeVoiceChat;
-  if (![audioSession setMode:mode error:&modeError]) {
-    NSLog(@"Error setting mode: %@", modeError.localizedDescription);
-  }
-  
-//  NSError* categoryError2;
-//  if (![audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionMixWithOthers |  AVAudioSessionCategoryOptionAllowBluetooth | AVAudioSessionCategoryOptionDefaultToSpeaker error:&categoryError2]) {
-//    NSLog(@"Error setting category second time: %@", categoryError2.localizedDescription);
-//  }
-  
+
   NSError* activationError;
-  AVAudioSessionSetActiveOptions options = 0;
-  if (![audioSession setActive:YES withOptions:options error:&activationError]) {
+  AVAudioSessionSetActiveOptions setActiveOptions = 0;
+  if (![audioSession setActive:YES withOptions:setActiveOptions error:&activationError]) {
     NSLog(@"Error activating session: %@", activationError.localizedDescription);
   }
     
@@ -124,7 +117,7 @@
   NSLog(@"Route changed reason: %d", (int)[[userInfo valueForKey:AVAudioSessionRouteChangeReasonKey] integerValue]);
   AVAudioSessionRouteDescription* routeDescription = audioSession.currentRoute;
   AVAudioSessionPortDescription* description = routeDescription.outputs[0];
-  NSLog(@"New route name: %@, type: %@", description.portName, description.portType);
+  NSLog(@"New route name: %@, type: %@, id: %@", description.portName, description.portType, description.UID);
     
   dispatch_sync(dispatch_get_main_queue(), ^{ [self updateAirPlayActive]; });
   dispatch_sync(dispatch_get_main_queue(), ^{ [self isAirPlayActive]; });
